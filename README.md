@@ -13,9 +13,10 @@ CloudStream `.cs3` files contain Android/Kotlin plugin code. A browser cannot ex
 
 ## Connect the runtime
 
-1. Obtain and run an authorised CNCVerse Bridge server. The bridge project is maintained separately; its published repository currently states that its source is proprietary and requires explicit permission for copying, modification or redistribution. Do not copy its source into this project without permission.
-2. In your Vercel project (or local environment), set `CNCVERSE_BRIDGE_URL=https://your-bridge-host.example`. Use the base URL only; do not append `/manifest.json`.
-3. Redeploy, open **Runtime**, and confirm that the bridge manifest loads.
+1. Install the official [CNCVerse Bridge Android app](https://github.com/NivinCNC/CNCVerse-Bridge/releases/latest) or a supported Linux release. Start its server and install/enable the CNCVerse extension repository inside Bridge.
+2. The easiest remote connection is an HTTPS Cloudflare Tunnel. Bridge documents this under **Stremio Mode**; it requires a domain managed by Cloudflare. Keep the Bridge server and tunnel running while using the website.
+3. In Vercel → Project → Settings → Environment Variables, set `CNCVERSE_BRIDGE_URL` to the HTTPS addon base URL. Remove the trailing `/manifest.json`; do not include that path.
+4. Redeploy, open **Runtime**, and confirm that the bridge manifest loads. The Runtime page can then browse catalogs, search catalogs that declare a `search` extra, fetch metadata, and request streams.
 
 If the runtime is not connected, the Runtime page explains the missing configuration. No fake local execution is attempted.
 
