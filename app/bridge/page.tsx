@@ -42,10 +42,10 @@ export default function BridgePage() {
     if (!activeCatalog) return;
     setBusy(true); setError(""); setSelected(null); setStreams([]); setPlaying(null);
     try {
-      const params = new URLSearchParams();
-      if (search.trim()) params.set("search", search.trim());
-      const suffix = params.size ? "?" + params.toString() : "";
-      const result = await bridge<{ metas?: MetaPreview[] }>(`catalog/${encodeURIComponent(activeCatalog.type)}/${encodeURIComponent(activeCatalog.id)}.json${suffix}`);
+      const extra = search.trim() && activeCatalog.extra?.some((item) => item.name === "search")
+        ? `/search=${encodeURIComponent(search.trim())}`
+        : "";
+      const result = await bridge<{ metas?: MetaPreview[] }>(`catalog/${encodeURIComponent(activeCatalog.type)}/${encodeURIComponent(activeCatalog.id)}${extra}.json`);
       setItems(result.metas || []);
       if (!(result.metas || []).length) setError(search ? "No matches. This catalog may not support search." : "This catalog is empty.");
     } catch (e) { setError(e instanceof Error ? e.message : "Catalog request failed."); }
