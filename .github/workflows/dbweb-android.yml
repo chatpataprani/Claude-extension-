@@ -55,7 +55,7 @@ jobs:
 
       - name: Install stable Android SDK
         run: |
-          sdkmanager --install "platforms;android-36" "build-tools;36.0.0"
+          sdkmanager --install "platforms;android-37.0" "build-tools;37.0.0"
 
       - name: Initialize Git metadata for extracted source
         working-directory: build-source/cloudsrc
@@ -69,9 +69,39 @@ jobs:
       - name: Set compile SDK to installed stable platform
         working-directory: build-source/cloudsrc
         run: |
-          sed -i 's/^compileSdk = "37"$/compileSdk = "36"/' gradle/libs.versions.toml
           grep '^compileSdk' gradle/libs.versions.toml
-          grep -q '^compileSdk = "36"$' gradle/libs.versions.toml
+          grep -q '^compileSdk = "37"
+
+      - name: Provide Git metadata for version generation
+        working-directory: build-source/cloudsrc
+        run: |
+          mkdir -p .git/refs/heads
+          printf 'ref: refs/heads/main\\n' > .git/HEAD
+          printf '%s\\n' "$GITHUB_SHA" > .git/refs/heads/main
+
+      - name: Build stable debug APK
+        working-directory: build-source/cloudsrc
+        run: |
+          chmod +x ./gradlew
+          ./gradlew --no-daemon --stacktrace :app:assembleStableDebug
+
+      - name: Verify APK and calculate checksum
+        run: |
+          APK="build-source/cloudsrc/app/build/outputs/apk/stable/debug/app-stable-debug.apk"
+          test -s "$APK"
+          sha256sum "$APK"
+          "$ANDROID_HOME/build-tools/37.0.0/apksigner" verify --verbose "$APK"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Dbweb-Android-stable-debug
+          path: build-source/cloudsrc/app/build/outputs/apk/stable/debug/app-stable-debug.apk
+          if-no-files-found: error
+          retention-days: 30
+ gradle/libs.versions.toml
+          test -d "$ANDROID_HOME/platforms/android-37.0"
+          ln -sfn android-37.0 "$ANDROID_HOME/platforms/android-37"
 
       - name: Provide Git metadata for version generation
         working-directory: build-source/cloudsrc
