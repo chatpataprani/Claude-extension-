@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import JSZip from "jszip";
+import { getInstalledExtensions, removeInstalledExtension, saveInstalledExtension, type InstalledExtension } from "@/lib/extension-store";
 import { ArrowUpRight, Bookmark, Check, ChevronRight, Film, Github, Plus, Search, Settings2, ShieldAlert, Sparkles, Tv, X } from "lucide-react";
 
 type Plugin = { name?: string; internalName?: string; description?: string; version?: number; authors?: string[]; url?: string; iconUrl?: string; status?: number; tvTypes?: string[]; language?: string; };
@@ -31,7 +33,10 @@ export default function Home() {
   const [message, setMessage] = useState("");
   const [active, setActive] = useState("Discover");
   const [showAdd, setShowAdd] = useState(false);
+  const [installed, setInstalled] = useState<InstalledExtension[]>([]);
+  const [installing, setInstalling] = useState<string | null>(null);
 
+  useEffect(() => { getInstalledExtensions().then(setInstalled).catch(() => {}); }, []);
   useEffect(() => {
     const saved = localStorage.getItem("cs-web-repos");
     if (saved) {
@@ -55,6 +60,48 @@ export default function Home() {
   }
   function removeRepo(url: string) { setRepos(old => old.filter(r => r.url !== url)); }
 
+  async function installExtension(plugin: Plugin & { _repo: string }) {
+    if (!plugin.url) { setMessage("This repository entry has no package URL."); return; }
+    setInstalling(plugin.url); setMessage("");
+    try {
+      const params = new URLSearchParams({ url: plugin.url });
+      if (plugin.fileHash) params.set("sha256", plugin.fileHash);
+      const response = await fetch("/api/extension?" + params.toString());
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.error || "Extension download failed.");
+      }
+      const bytes = await response.arrayBuffer();
+      const zip = await JSZip.loadAsync(bytes);
+      const manifestFile = zip.file("manifest.json");
+      if (!manifestFile) throw new Error("Package does not contain the CloudStream manifest.json.");
+      const manifest = JSON.parse(await manifestFile.async("text"));
+      if (!manifest.pluginClassName) throw new Error("Manifest is missing pluginClassName.");
+      const entry: InstalledExtension = {
+        url: plugin.url,
+        name: manifest.name || plugin.name || plugin.internalName || "CloudStream extension",
+        internalName: plugin.internalName || manifest.pluginClassName,
+        version: Number.isFinite(Number(manifest.version)) ? Number(manifest.version) : null,
+        pluginClassName: manifest.pluginClassName,
+        requiresResources: Boolean(manifest.requiresResources),
+        installedAt: Date.now(),
+        packageBytes: bytes,
+        checksum: response.headers.get("X-Extension-SHA256") || "",
+      };
+      await saveInstalledExtension(entry);
+      setInstalled(await getInstalledExtensions());
+      setMessage(entry.name + " package saved in this browser.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Could not install extension package.");
+    } finally { setInstalling(null); }
+  }
+  async function uninstallExtension(url: string) {
+    await removeInstalledExtension(url);
+    setInstalled(await getInstalledExtensions());
+    setMessage("Extension package removed from this browser.");
+  }
+
+
   return <main className="shell">
     <aside className="sidebar">
       <div className="brand"><div className="brandIcon"><Film size={21}/></div><div><strong>CloudStream</strong><span>WEB EXPERIMENT</span></div></div>
@@ -66,11 +113,11 @@ export default function Home() {
       <header className="topbar"><div className="crumb">CloudStream <ChevronRight size={14}/> <b>{active}</b></div><div className="topRight"><span className="statusDot"/> Browser edition <button className="iconButton" aria-label="Settings"><Settings2 size={18}/></button></div></header>
       <div className="content">
         <div className="hero"><div className="eyebrow"><span/> OPEN SOURCE MEDIA CENTER</div><h1>Your extensions.<br/><em>Your library.</em></h1><p>A browser-first CloudStream experience. Add repositories and explore their published extensions.</p><div className="heroActions"><button className="primary" onClick={() => setShowAdd(true)}><Plus size={17}/> Add repository</button><a className="secondary" href="https://github.com/chatpataprani/Claude-extension-" target="_blank" rel="noreferrer">View project <ArrowUpRight size={15}/></a></div><div className="heroGlow"/></div>
-        <div className="sectionHead"><div><div className="eyebrow muted">YOUR CATALOG</div><h2>{active === "Repositories" ? "Repositories" : active === "Extensions" ? "Installed sources" : "Explore extensions"}</h2></div><div className="countPill">{plugins.length} extensions indexed</div></div>
+        <div className="sectionHead"><div><div className="eyebrow muted">YOUR CATALOG</div><h2>{active === "Repositories" ? "Repositories" : active === "Extensions" ? "Installed sources" : "Explore extensions"}</h2></div><div className="countPill">{plugins.length} extensions · {installed.length} stored</div></div>
         <div className="searchRow"><Search size={18}/><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search extensions, languages, categories..."/>{query && <button onClick={() => setQuery("")}><X size={16}/></button>}</div>
-        {active === "Repositories" ? <div className="repoGrid">{repos.map(r => <div className="repoCard" key={r.url}><div className="repoIcon"><Github size={20}/></div><div className="repoInfo"><b>{r.name}</b><p>{r.description}</p><small>{r.plugins.length} extensions · {r.url}</small></div><button className="remove" onClick={() => removeRepo(r.url)}>Remove</button></div>)}</div> : <div className="pluginGrid">{filtered.map((p,i) => <article className="pluginCard" key={p.internalName || p.name || i}><div className="pluginTop"><div className="pluginIcon">{p.iconUrl ? <img src={p.iconUrl} alt=""/> : <Film size={20}/>}</div><span className="tag">{p.language || "Unknown"}</span></div><h3>{p.name || p.internalName || "Unnamed extension"}</h3><p>{p.description || "No description provided by this extension."}</p><div className="pluginFoot"><span>{p._repo}</span><span>v{p.version ?? "—"}</span></div><div className="pluginUnavailable">Web execution not available yet</div></article>)}
+        {active === "Repositories" ? <div className="repoGrid">{repos.map(r => <div className="repoCard" key={r.url}><div className="repoIcon"><Github size={20}/></div><div className="repoInfo"><b>{r.name}</b><p>{r.description}</p><small>{r.plugins.length} extensions · {r.url}</small></div><button className="remove" onClick={() => removeRepo(r.url)}>Remove</button></div>)}</div> : <div className="pluginGrid">{filtered.map((p,i) => <article className="pluginCard" key={p.internalName || p.name || i}><div className="pluginTop"><div className="pluginIcon">{p.iconUrl ? <img src={p.iconUrl} alt=""/> : <Film size={20}/>}</div><span className="tag">{p.language || "Unknown"}</span></div><h3>{p.name || p.internalName || "Unnamed extension"}</h3><p>{p.description || "No description provided by this extension."}</p><div className="pluginFoot"><span>{p._repo}</span><span>v{p.version ?? "—"}</span></div><div className="pluginActions">{installed.some(item => item.url === p.url) ? <><span className="storedBadge"><Check size={13}/> Package stored</span><button className="remove" onClick={() => p.url && uninstallExtension(p.url)}>Remove</button></> : <button className="installButton" disabled={!p.url || installing === p.url} onClick={() => installExtension(p)}>{installing === p.url ? "Downloading..." : "Install package"}</button>}</div></article>)}
         {filtered.length === 0 && <div className="empty"><div className="emptyIcon"><Bookmark size={22}/></div><h3>No extensions found</h3><p>Add a repository or try another search.</p><button className="secondary" onClick={() => setShowAdd(true)}><Plus size={16}/> Add repository</button></div>}</div>}
-        <div className="footnote"><ShieldAlert size={16}/><span>This is an early web port. CloudStream’s native .cs3 extensions are Android/Kotlin plugins and are listed for discovery only; they are not executed by this website yet.</span></div>
+        <div className="footnote"><ShieldAlert size={16}/><span>This web client can download, checksum-verify and inspect .cs3 packages. It stores them locally, but does not execute Android/Kotlin plugin code yet.</span></div>
       </div>
     </section>
     {showAdd && <div className="modalBackdrop" onClick={() => setShowAdd(false)}><div className="modal" onClick={e => e.stopPropagation()}><button className="close" onClick={() => setShowAdd(false)}><X size={18}/></button><div className="modalIcon"><Plus size={21}/></div><h2>Add a repository</h2><p>Paste a CloudStream repo.json URL or a public GitHub repository URL.</p><input value={input} onChange={e => setInput(e.target.value)} placeholder="https://raw.githubusercontent.com/.../repo.json"/><button className="primary full" onClick={addRepo} disabled={busy}>{busy ? "Loading repository..." : "Add repository"}</button>{message && <div className="message">{message}</div>}</div></div>}
