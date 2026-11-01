@@ -9,7 +9,6 @@ type Plugin = { name?: string; internalName?: string; description?: string; vers
 type SavedRepo = { url: string; name: string; description: string; plugins: Plugin[]; error?: string };
 
 const CNC_REPO_URL = "https://raw.githubusercontent.com/NivinCNC/CNCVerse-Cloud-Stream-Extension/refs/heads/builds/CNC.json";
-const starterRepos = [CNC_REPO_URL];
 
 async function loadRepo(url: string): Promise<SavedRepo> {
   const get = async (target: string) => {
@@ -37,13 +36,11 @@ export default function Home() {
 
   useEffect(() => { getInstalledExtensions().then(setInstalled).catch(() => {}); }, []);
   useEffect(() => {
-    const saved = localStorage.getItem("cs-web-repos");
-    if (saved) {
-      try { const parsed = JSON.parse(saved) as SavedRepo[]; setRepos(parsed); return; } catch {}
-    }
-    Promise.all(starterRepos.map(loadRepo)).then(setRepos).catch(() => setRepos([]));
+    loadRepo(CNC_REPO_URL).then(repo => setRepos([repo])).catch(error => {
+      setMessage(error instanceof Error ? error.message : "Unable to load CNCVerse extensions.");
+      setRepos([]);
+    });
   }, []);
-  useEffect(() => { if (repos.length) localStorage.setItem("cs-web-repos", JSON.stringify(repos)); }, [repos]);
 
   const plugins = useMemo(() => repos.flatMap(r => r.plugins.map(p => ({ ...p, _repo: r.name }))), [repos]);
   const filtered = plugins.filter(p => `${p.name || p.internalName || ""} ${p.description || ""} ${p.language || ""} ${(p.tvTypes || []).join(" ")}`.toLowerCase().includes(query.toLowerCase()));
