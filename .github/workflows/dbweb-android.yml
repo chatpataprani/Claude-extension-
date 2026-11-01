@@ -47,15 +47,16 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v5
 
-      - name: Set up Android SDK command-line tools
-        uses: android-actions/setup-android@v3
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
         with:
-          packages: ""
           accept-android-sdk-licenses: true
 
-      - name: Install stable Android SDK
+      - name: Install Android 17 SDK
         run: |
           sdkmanager --install "platforms;android-37.0" "build-tools;37.0.0"
+          test -d "$ANDROID_HOME/platforms/android-37.0"
+          ln -sfn android-37.0 "$ANDROID_HOME/platforms/android-37"
 
       - name: Initialize Git metadata for extracted source
         working-directory: build-source/cloudsrc
@@ -66,49 +67,9 @@ jobs:
           git add -A
           git -c commit.gpgsign=false commit -m "Dbweb Android source build"
 
-      - name: Set compile SDK to installed stable platform
+      - name: Confirm Android compile SDK
         working-directory: build-source/cloudsrc
-        run: |
-          grep '^compileSdk' gradle/libs.versions.toml
-          grep -q '^compileSdk = "37"
-
-      - name: Provide Git metadata for version generation
-        working-directory: build-source/cloudsrc
-        run: |
-          mkdir -p .git/refs/heads
-          printf 'ref: refs/heads/main\\n' > .git/HEAD
-          printf '%s\\n' "$GITHUB_SHA" > .git/refs/heads/main
-
-      - name: Build stable debug APK
-        working-directory: build-source/cloudsrc
-        run: |
-          chmod +x ./gradlew
-          ./gradlew --no-daemon --stacktrace :app:assembleStableDebug -x :app:checkStableDebugAarMetadata
-
-      - name: Verify APK and calculate checksum
-        run: |
-          APK="build-source/cloudsrc/app/build/outputs/apk/stable/debug/app-stable-debug.apk"
-          test -s "$APK"
-          sha256sum "$APK"
-          "$ANDROID_HOME/build-tools/37.0.0/apksigner" verify --verbose "$APK"
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: Dbweb-Android-stable-debug
-          path: build-source/cloudsrc/app/build/outputs/apk/stable/debug/app-stable-debug.apk
-          if-no-files-found: error
-          retention-days: 30
- gradle/libs.versions.toml
-          test -d "$ANDROID_HOME/platforms/android-37.0"
-          ln -sfn android-37.0 "$ANDROID_HOME/platforms/android-37"
-
-      - name: Provide Git metadata for version generation
-        working-directory: build-source/cloudsrc
-        run: |
-          mkdir -p .git/refs/heads
-          printf 'ref: refs/heads/main\\n' > .git/HEAD
-          printf '%s\\n' "$GITHUB_SHA" > .git/refs/heads/main
+        run: grep '^compileSdk = "37"$' gradle/libs.versions.toml
 
       - name: Build stable debug APK
         working-directory: build-source/cloudsrc
@@ -121,7 +82,7 @@ jobs:
           APK="build-source/cloudsrc/app/build/outputs/apk/stable/debug/app-stable-debug.apk"
           test -s "$APK"
           sha256sum "$APK"
-          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose "$APK"
+          "$ANDROID_HOME/build-tools/37.0.0/apksigner" verify --verbose "$APK"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
