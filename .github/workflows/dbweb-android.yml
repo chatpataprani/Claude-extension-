@@ -55,7 +55,7 @@ jobs:
 
       - name: Install Android SDK platform and build tools
         run: |
-          sdkmanager --install "platforms;android-37" "build-tools;37.0.0"
+          sdkmanager --channel=3 --install "platforms;android-37" "build-tools;37.0.0"
 
       - name: Build stable debug APK
         working-directory: build-source/cloudsrc
