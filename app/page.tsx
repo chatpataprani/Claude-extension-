@@ -44,7 +44,8 @@ export default function Home() {
 
   const plugins = useMemo(() => repos.flatMap(r => r.plugins.map(p => ({ ...p, _repo: r.name }))), [repos]);
   const filtered = plugins.filter(p => `${p.name || p.internalName || ""} ${p.description || ""} ${p.language || ""} ${(p.tvTypes || []).join(" ")}`.toLowerCase().includes(query.toLowerCase()));
-  // This web client is intentionally pinned to the CNCVerse repository.\n  async function installExtension(plugin: Plugin & { _repo: string }) {
+  // This web client is intentionally pinned to the CNCVerse repository.
+  async function installExtension(plugin: Plugin & { _repo: string }) {
     if (!plugin.url) { setMessage("This repository entry has no package URL."); return; }
     setInstalling(plugin.url); setMessage("");
     try {
@@ -104,4 +105,5 @@ export default function Home() {
         <div className="footnote"><ShieldAlert size={16}/><span>Package storage is a preview only. To run CNCVerse extensions, connect an authorised CNCVerse Bridge server and use the Runtime page.</span></div>
       </div>
     </section>
-
+  </main>;
+}
