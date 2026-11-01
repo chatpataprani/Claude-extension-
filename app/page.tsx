@@ -5,7 +5,7 @@ import JSZip from "jszip";
 import { getInstalledExtensions, removeInstalledExtension, saveInstalledExtension, type InstalledExtension } from "@/lib/extension-store";
 import { ArrowUpRight, Bookmark, Check, ChevronRight, Film, Github, Plus, Search, Settings2, ShieldAlert, Sparkles, Tv, X } from "lucide-react";
 
-type Plugin = { name?: string; internalName?: string; description?: string; version?: number; authors?: string[]; url?: string; iconUrl?: string; status?: number; tvTypes?: string[]; language?: string; };
+type Plugin = { name?: string; internalName?: string; description?: string; version?: number; authors?: string[]; url?: string; fileHash?: string; iconUrl?: string; status?: number; tvTypes?: string[]; language?: string; };
 type SavedRepo = { url: string; name: string; description: string; plugins: Plugin[]; error?: string };
 
 const starterRepos = ["https://raw.githubusercontent.com/admknight/CloudstreamExtensions/master/repo.json"];
