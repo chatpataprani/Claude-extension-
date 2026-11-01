@@ -1,21 +1,31 @@
-# CloudStream extension compatibility
+# CNCVerse extension compatibility
 
-## What this project can do today
+## Architecture
 
-The web client understands the official CloudStream repository manifest and plugin-list schema. It can download a published `.cs3` package from an approved GitHub host, verify the repository's SHA-256 hash, inspect its ZIP-level `manifest.json`, and store the package in browser IndexedDB.
+CNCVerse publishes CloudStream `.cs3` extensions. These are Android/Kotlin plugins, not browser JavaScript modules. The browser cannot load their DEX bytecode, instantiate their plugin classes, or provide Android framework APIs.
 
-## Why this is not yet the same as the Android app
+This web app uses a separate CNCVerse Bridge runtime for execution. The bridge exposes a Stremio-compatible API; the web app consumes its manifest, catalogs, metadata and stream results.
 
-The official Android loader opens a `.cs3` package with Android's `PathClassLoader`, reads `manifest.json`, instantiates the declared Kotlin plugin class, and calls its lifecycle hooks. A browser cannot load Android DEX bytecode or provide Android framework classes such as `Context`, `Resources`, and Android networking APIs.
+## Current implementation
 
-A JVM server alone is not automatically compatible: Android-specific APIs, DEX bytecode, plugin lifecycle, resources, and network/security boundaries all need to be handled. Running arbitrary third-party extension code directly in a shared web process would also be unsafe.
+- Pinned CNCVerse repository manifest and plugin-list loading.
+- Package download, checksum validation, manifest inspection and browser storage (inspection only; not execution).
+- `/bridge` page for bridge connection status, catalog browsing, catalog search, metadata and stream discovery.
+- `/api/bridge/*` server-side proxy for manifest, catalog, metadata and stream requests.
+- Bridge URL is configured with the server-side `CNCVERSE_BRIDGE_URL` environment variable and is never supplied by the browser.
 
-## Runtime roadmap
+## Required setup
 
-1. Keep repository and package handling compatible with the official schema.
-2. Build an isolated Android-compatible execution worker (not in the Next.js request process).
-3. Implement the CloudStream plugin API surface and Android API shims required by real extensions.
-4. Expose only a narrow, typed provider interface to the web client.
-5. Test against a compatibility matrix of real public extensions before claiming support.
+1. Obtain and run an authorised CNCVerse Bridge server.
+2. Set `CNCVERSE_BRIDGE_URL` to its HTTPS base URL in the deployment environment.
+3. Ensure the bridge server has the CNCVerse repository installed and the desired extensions enabled.
+4. Open `/bridge` and verify that the bridge manifest and catalogs load.
 
-Until that worker exists, installed packages are stored and inspected but **not executed**. The web app must never label a package as active or working when only downloaded.
+The separate CNCVerse Bridge repository states that its source is proprietary and requires explicit permission before copying, modifying or redistributing it. This project does not copy or bundle that code.
+
+## Known limitations
+
+- Without a configured bridge server, the app can list and store packages but cannot execute them.
+- Some stream URLs may not play in a browser due to HLS, DRM, authentication, CORS, geo-restrictions or provider-specific requirements.
+- A returned stream is not a guarantee that the provider is available or that playback is supported.
+- Do not label a downloaded package as active; package storage and runtime execution are separate states.
