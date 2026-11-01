@@ -57,6 +57,15 @@ jobs:
         run: |
           sdkmanager --install "platforms;android-36" "build-tools;36.0.0"
 
+      - name: Initialize Git metadata for extracted source
+        working-directory: build-source/cloudsrc
+        run: |
+          git init
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add -A
+          git -c commit.gpgsign=false commit -m "Dbweb Android source build"
+
       - name: Set compile SDK to installed stable platform
         working-directory: build-source/cloudsrc
         run: |
