@@ -64,6 +64,13 @@ jobs:
           grep '^compileSdk' gradle/libs.versions.toml
           grep -q '^compileSdk = "36"$' gradle/libs.versions.toml
 
+      - name: Provide Git metadata for version generation
+        working-directory: build-source/cloudsrc
+        run: |
+          mkdir -p .git/refs/heads
+          printf 'ref: refs/heads/main\\n' > .git/HEAD
+          printf '%s\\n' "$GITHUB_SHA" > .git/refs/heads/main
+
       - name: Build stable debug APK
         working-directory: build-source/cloudsrc
         run: |
