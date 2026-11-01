@@ -22,6 +22,7 @@ export default function BridgePage() {
   const [items, setItems] = useState<MetaPreview[]>([]);
   const [selected, setSelected] = useState<MetaPreview | null>(null);
   const [streams, setStreams] = useState<Stream[]>([]);
+  const [playing, setPlaying] = useState<Stream | null>(null);
   const [query, setQuery] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -39,7 +40,7 @@ export default function BridgePage() {
 
   async function loadCatalog(search = "") {
     if (!activeCatalog) return;
-    setBusy(true); setError(""); setSelected(null); setStreams([]);
+    setBusy(true); setError(""); setSelected(null); setStreams([]); setPlaying(null);
     try {
       const params = new URLSearchParams();
       if (search.trim()) params.set("search", search.trim());
@@ -54,7 +55,7 @@ export default function BridgePage() {
   useEffect(() => { if (activeCatalog) loadCatalog(); }, [catalogIndex, manifest]);
 
   async function openTitle(item: MetaPreview) {
-    setSelected(item); setStreams([]); setError(""); setBusy(true);
+    setSelected(item); setStreams([]); setPlaying(null); setError(""); setBusy(true);
     try {
       const meta = await bridge<{ meta?: MetaPreview }>(`meta/${encodeURIComponent(item.type)}/${encodeURIComponent(item.id)}.json`);
       const title = meta.meta || item;
@@ -81,7 +82,7 @@ export default function BridgePage() {
         {manifest && <p className="mt-4 text-sm text-emerald-300">{manifest.name || "Bridge"} {manifest.version ? `· v${manifest.version}` : ""}</p>}
       </section>
 
-      {!manifest && <section className="rounded-2xl border border-white/10 bg-white/[.03] p-6"><div className="mb-2 flex items-center gap-2 font-medium"><Server size={18}/> Runtime not connected</div><p className="text-sm leading-6 text-white/60">Set <code className="rounded bg-black/30 px-1.5 py-1 text-cyan-200">CNCVERSE_BRIDGE_URL</code> in your hosting environment to the HTTPS URL of an authorised CNCVerse Bridge server, then redeploy. The browser cannot execute .cs3 packages by itself.</p>{error && <p className="mt-4 break-words text-sm text-amber-300">{error}</p>}</section>}
+      {!manifest && <section className="rounded-2xl border border-white/10 bg-white/[.03] p-6"><div className="mb-2 flex items-center gap-2 font-medium"><Server size={18}/> Runtime not connected</div><p className="text-sm leading-6 text-white/60">The web app needs the official CNCVerse Bridge runtime running somewhere reachable over HTTPS. The easiest setup is the official Android app:</p><ol className="mt-4 list-decimal space-y-2 pl-5 text-sm leading-6 text-white/65"><li>Install the official <a className="text-cyan-300 underline" href="https://github.com/NivinCNC/CNCVerse-Bridge/releases/latest" target="_blank" rel="noreferrer">CNCVerse Bridge APK</a> and open it.</li><li>Install your CNCVerse extension repository and enable the extensions you want inside Bridge.</li><li>Start its server. In Bridge settings, configure its Cloudflare Tunnel and enable Stremio Mode to get an HTTPS addon address.</li><li>Copy the address hostname/base URL, removing <code className="rounded bg-black/30 px-1">/manifest.json</code>.</li><li>Add that base URL as <code className="rounded bg-black/30 px-1 text-cyan-200">CNCVERSE_BRIDGE_URL</code> in Vercel → Project → Settings → Environment Variables, then redeploy.</li></ol><p className="mt-3 text-xs leading-5 text-white/40">Keep the Bridge app and its server running. If the phone sleeps or the tunnel stops, the website will lose access. For always-on use, a supported Linux desktop/server installation may be needed.</p>{error && <p className="mt-4 break-words text-sm text-amber-300">{error}</p>}</section>}
 
       {manifest && <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
         <section>
@@ -96,7 +97,7 @@ export default function BridgePage() {
           {error && <p className="mt-5 rounded-xl border border-amber-300/20 bg-amber-300/5 p-3 text-sm text-amber-200">{error}</p>}
         </section>
         <aside className="h-fit rounded-2xl border border-white/10 bg-white/[.03] p-5 lg:sticky lg:top-24">
-          {selected ? <><div className="flex gap-4">{selected.poster&&<img src={selected.poster} alt="" className="h-28 w-20 rounded-lg object-cover"/>}<div><h2 className="font-semibold">{selected.name}</h2><p className="mt-1 text-xs text-white/45">{selected.year} {selected.genres?.join(" · ")}</p></div></div><p className="mt-4 text-sm leading-6 text-white/55">{selected.description || "No description available."}</p><div className="mt-5 space-y-2"><div className="text-xs font-semibold uppercase tracking-wider text-white/45">Available streams</div>{streams.map((stream,i)=><div key={i} className="rounded-xl border border-white/10 p-3"><div className="text-sm font-medium">{stream.name || stream.title || `Source ${i+1}`}</div>{stream.description&&<p className="mt-1 text-xs text-white/45">{stream.description}</p>}{stream.url&&<a href={stream.url} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-2 text-xs text-cyan-300"><Play size={14}/> Open stream <ExternalLink size={13}/></a>}{stream.externalUrl&&<a href={stream.externalUrl} target="_blank" rel="noreferrer" className="mt-3 ml-3 inline-flex items-center gap-2 text-xs text-white/60">Open provider <ExternalLink size={13}/></a>}</div>)}</div></>:<div className="py-10 text-center text-sm text-white/40"><Film size={28} className="mx-auto mb-3 opacity-50"/>Choose a title to load its available streams.</div>}
+          {selected ? <><div className="flex gap-4">{selected.poster&&<img src={selected.poster} alt="" className="h-28 w-20 rounded-lg object-cover"/>}<div><h2 className="font-semibold">{selected.name}</h2><p className="mt-1 text-xs text-white/45">{selected.year} {selected.genres?.join(" · ")}</p></div></div><p className="mt-4 text-sm leading-6 text-white/55">{selected.description || "No description available."}</p><div className="mt-5 space-y-2"><div className="text-xs font-semibold uppercase tracking-wider text-white/45">Available streams</div>{streams.map((stream,i)=><div key={i} className="rounded-xl border border-white/10 p-3"><div className="text-sm font-medium">{stream.name || stream.title || `Source ${i+1}`}</div>{stream.description&&<p className="mt-1 text-xs text-white/45">{stream.description}</p>}{stream.url&&<button onClick={()=>setPlaying(stream)} className="mt-3 inline-flex items-center gap-2 text-xs text-cyan-300"><Play size={14}/> Play here</button>}{stream.url&&<a href={stream.url} target="_blank" rel="noreferrer" className="mt-3 ml-3 inline-flex items-center gap-2 text-xs text-white/60">Open link <ExternalLink size={13}/></a>}{stream.externalUrl&&<a href={stream.externalUrl} target="_blank" rel="noreferrer" className="mt-3 ml-3 inline-flex items-center gap-2 text-xs text-white/60">Open provider <ExternalLink size={13}/></a>}</div>)}{playing?.url&&<div className="mt-5 rounded-xl border border-cyan-300/20 bg-black/30 p-3"><div className="mb-2 flex items-center justify-between gap-2"><span className="text-xs font-semibold text-cyan-200">Now playing · {playing.name || playing.title || "Selected source"}</span><button onClick={()=>setPlaying(null)} className="text-xs text-white/50">Close</button></div><video key={playing.url} controls autoPlay playsInline className="max-h-[420px] w-full rounded-lg bg-black" src={playing.url}>Your browser cannot play this stream format. Use Open link instead.</video><p className="mt-2 text-[11px] leading-5 text-white/40">Browser playback depends on the stream format. Some HLS, DASH, DRM, or protected sources may need a compatible player or provider app.</p></div>}</div></>:<div className="py-10 text-center text-sm text-white/40"><Film size={28} className="mx-auto mb-3 opacity-50"/>Choose a title to load its available streams.</div>}
           {!supportsStreams&&<p className="mt-4 text-xs text-amber-300">This bridge manifest does not advertise stream support.</p>}
         </aside>
       </div>}
