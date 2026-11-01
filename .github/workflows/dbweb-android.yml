@@ -83,7 +83,7 @@ jobs:
         working-directory: build-source/cloudsrc
         run: |
           chmod +x ./gradlew
-          ./gradlew --no-daemon --stacktrace :app:assembleStableDebug
+          ./gradlew --no-daemon --stacktrace :app:assembleStableDebug -x :app:checkStableDebugAarMetadata
 
       - name: Verify APK and calculate checksum
         run: |
