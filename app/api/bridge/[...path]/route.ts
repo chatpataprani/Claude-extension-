@@ -26,7 +26,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ pat
 
     const { path } = await context.params;
     const safePath = path.join("/");
-    if (!/^(manifest\.json|catalog\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_.:-]+(?:\/[a-zA-Z0-9_.:%=&+~-]+)?\.json|meta\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_.:-]+\.json|stream\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_.:-]+\.json)$/.test(safePath)) {
+    if (!/^(manifest\.json|catalog\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_.:-]+(?:\/[a-zA-Z0-9_.:%=&+~% -]+)?\.json|meta\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_.:-]+\.json|stream\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_.:-]+\.json)$/.test(safePath)) {
       return NextResponse.json({ error: "Unsupported bridge API path." }, { status: 400 });
     }
 
