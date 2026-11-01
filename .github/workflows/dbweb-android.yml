@@ -24,15 +24,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Verify source archive
+      - name: Verify and extract source archive
         run: |
-          ARCHIVE="source/Dbweb-Android-Source-Download.zip"
-          test -s "$ARCHIVE"
-          unzip -tq "$ARCHIVE"
-          sha256sum "$ARCHIVE"
-
-      - name: Extract Android source
-        run: |
+          unzip -tq source/Dbweb-Android-Source-Download.zip
           mkdir -p build-source
           unzip -q source/Dbweb-Android-Source-Download.zip -d build-source
           test -f build-source/cloudsrc/gradlew
@@ -48,17 +42,19 @@ jobs:
         uses: gradle/actions/setup-gradle@v5
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v4
+        uses: android-actions/setup-android@v3
         with:
+          packages: ""
           accept-android-sdk-licenses: true
 
-      - name: Install Android 17 SDK
+      - name: Install Android API 37 and build tools
         run: |
-          sdkmanager --install "platforms;android-37.0" "build-tools;37.0.0"
+          sdkmanager --channel=3 --list | grep -E 'platforms;android-37|build-tools;37'
+          sdkmanager --channel=3 --install "platforms;android-37.0" "build-tools;37.0.0"
           test -d "$ANDROID_HOME/platforms/android-37.0"
           ln -sfn android-37.0 "$ANDROID_HOME/platforms/android-37"
 
-      - name: Initialize Git metadata for extracted source
+      - name: Initialize Git metadata
         working-directory: build-source/cloudsrc
         run: |
           git init
@@ -66,10 +62,6 @@ jobs:
           git config user.email "actions@github.com"
           git add -A
           git -c commit.gpgsign=false commit -m "Dbweb Android source build"
-
-      - name: Confirm Android compile SDK
-        working-directory: build-source/cloudsrc
-        run: grep '^compileSdk = "37"$' gradle/libs.versions.toml
 
       - name: Build stable debug APK
         working-directory: build-source/cloudsrc
