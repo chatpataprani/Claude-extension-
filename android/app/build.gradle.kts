@@ -21,10 +21,6 @@ abstract class GenerateGitHashTask : DefaultTask() {
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val headFile: RegularFileProperty
 
-    @get:InputDirectory
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val headsDir: DirectoryProperty
-
     @get:OutputDirectory
     abstract val outputDir: DirectoryProperty
 
@@ -53,10 +49,9 @@ abstract class GenerateGitHashTask : DefaultTask() {
 }
 
 val generateGitHash = tasks.register<GenerateGitHashTask>("generateGitHash") {
-    val gitDir = layout.projectDirectory.dir("../.git")
+    val gitDir = layout.projectDirectory.dir("../../.git")
 
     headFile.set(gitDir.file("HEAD"))
-    headsDir.set(gitDir.dir("refs/heads"))
 
     outputDir.set(layout.buildDirectory.dir("generated/git"))
 }
