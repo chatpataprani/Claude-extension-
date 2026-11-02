@@ -66,15 +66,6 @@ jobs:
           test -d "$ANDROID_HOME/platforms/android-37.0"
           ln -sfn android-37.0 "$ANDROID_HOME/platforms/android-37"
 
-      - name: Initialize Git metadata
-        working-directory: android
-        run: |
-          git init
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git add -A
-          git -c commit.gpgsign=false commit -m "Dbweb Android source build"
-
       - name: Build stable debug APK
         working-directory: build-source/cloudsrc
         run: |
