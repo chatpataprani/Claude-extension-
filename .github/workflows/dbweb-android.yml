@@ -24,7 +24,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Verify and extract source archive
+      - name: Verify extracted Android source
         run: |
           test -f android/gradlew
           test -f android/app/build.gradle.kts
@@ -67,7 +67,7 @@ jobs:
           ln -sfn android-37.0 "$ANDROID_HOME/platforms/android-37"
 
       - name: Initialize Git metadata
-        working-directory: build-source/cloudsrc
+        working-directory: android
         run: |
           git init
           git config user.name "GitHub Actions"
@@ -83,7 +83,7 @@ jobs:
 
       - name: Verify APK and calculate checksum
         run: |
-          APK="android/app/build/outputs/apk/stable/debug/app-stable-debug.apk"
+          APK="app/build/outputs/apk/stable/debug/app-stable-debug.apk"
           test -s "$APK"
           sha256sum "$APK"
           "$ANDROID_HOME/build-tools/37.0.0/apksigner" verify --verbose "$APK"
@@ -92,6 +92,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Dbweb-Android-stable-debug
-          path: build-source/cloudsrc/app/build/outputs/apk/stable/debug/app-stable-debug.apk
+          path: android/app/build/outputs/apk/stable/debug/app-stable-debug.apk
           if-no-files-found: error
           retention-days: 30
