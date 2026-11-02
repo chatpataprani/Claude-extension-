@@ -67,7 +67,7 @@ jobs:
           ln -sfn android-37.0 "$ANDROID_HOME/platforms/android-37"
 
       - name: Build stable debug APK
-        working-directory: build-source/cloudsrc
+        working-directory: android
         run: |
           chmod +x ./gradlew
           ./gradlew --no-daemon --stacktrace :app:assembleStableDebug
