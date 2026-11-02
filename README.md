@@ -1,67 +1,74 @@
-# Dbweb for Android
+# Dbweb
 
-Dbweb is a media and streaming application for Android phones, tablets, and Android TV. This repository contains the Android application source and automated build workflow.
+<div align="center">
+<img src="android/app/src/main/res/drawable/dbweb_launcher_foreground.png" width="128" alt="Dbweb logo">
+
+### Your media. Your extensions. Your experience.
+
+[![Android Build](https://img.shields.io/github/actions/workflow/status/chatpataprani/Claude-extension-/dbweb-android.yml?style=for-the-badge&logo=githubactions)](https://github.com/chatpataprani/Claude-extension-/actions/workflows/dbweb-android.yml)
+[![Android](https://img.shields.io/badge/Platform-Android-3DDC84?style=for-the-badge&logo=android)](https://www.android.com/)
+[![Kotlin](https://img.shields.io/badge/Language-Kotlin-7F52FF?style=for-the-badge&logo=kotlin)](https://kotlinlang.org/)
+[![License](https://img.shields.io/badge/License-GPL--3.0-blue?style=for-the-badge&logo=gnu)](LICENSE)
+
+[Website](https://webdd.freeddns.org) · [Source](android/) · [Builds](https://github.com/chatpataprani/Claude-extension-/actions) · [Issues](https://github.com/chatpataprani/Claude-extension-/issues)
+</div>
+
+---
+
+## About
+Dbweb is a media application for Android phones, tablets, and Android TV. It combines supported media playback with a flexible extension and plugin system.
 
 ## Features
+- 📺 Media playback and player controls for supported sources.
+- 🧩 Manual extension repository addition.
+- 📦 Install, enable, disable, update, and remove plugins.
+- 🔎 Search plugins and manage repositories.
+- 💬 Subtitles and ⬇️ downloads where supported by providers.
+- 📱 Phone, tablet, and Android TV layouts.
+- 🌐 Quick links to the official Dbweb website.
 
-- Dbweb application name, package ID, launcher artwork, and visual branding.
-- Media discovery and playback through supported providers.
-- Extension and plugin support using compatible repository packages.
-- Manual repository addition: open **Extensions**, choose **Add Repository**, and enter a trusted repository URL.
-- Browse plugins from added repositories, then install, enable, disable, update, or remove them.
-- Manage installed repositories and plugins.
-- Search the available plugin list.
-- Subtitles, playback controls, watch progress, and download features provided by supported providers and the installed runtime.
-- Phone and Android TV layouts.
-- Dbweb website shortcuts in Settings and the Extensions screen.
-
-## Installing extensions and plugins
-
+## Add extensions and plugins
 1. Open **Settings → Extensions**.
-2. Tap **Add Repository**.
-3. Enter the repository URL. Add a display name if requested.
-4. After the repository loads, open its plugin list.
-5. Select a plugin and follow the install prompt.
-6. Manage installed plugins from the Extensions and Plugins screens.
+2. Select **Add Repository** and enter a trusted repository URL.
+3. Open the repository plugin list.
+4. Select a plugin and follow the installation prompt.
+5. Manage installed plugins from the Extensions or Plugins screens.
 
-Only add repositories and plugins from sources you trust. Third-party repositories and providers are not operated or verified by Dbweb. Availability, playback quality, subtitles, authentication, and downloads depend on each provider and plugin.
+> Only add repositories and plugins you trust. Third-party sources are independently maintained and may have their own requirements.
 
-Manual repository controls are intentionally available. The Dbweb website shortcut is an additional link; it does not replace manual repository support. A curated first-party catalogue is not included until a public Dbweb catalogue manifest/API is configured.
+A native first-party Dbweb catalogue is not configured yet because a public catalogue manifest/API has not been provided. Manual repository support remains available.
 
-## Build the APK
+## Download
+Open [GitHub Actions](https://github.com/chatpataprani/Claude-extension-/actions/workflows/dbweb-android.yml), select the latest successful build, and download the **Dbweb-Android-stable-debug** artifact. The current artifact is a debug APK, not a Play Store production-signed release.
 
-The GitHub Actions workflow **Build Dbweb Android APK** builds the stable debug variant, verifies the generated APK signature, calculates its SHA-256 checksum, and uploads the APK as an artifact.
+## Build from source
+Requirements: JDK 21, Android SDK API 37, and Build Tools 37.0.0.
 
-1. Open the repository's **Actions** tab.
-2. Select **Build Dbweb Android APK**.
-3. Choose **Run workflow** to start a fresh build, or let a push to the Android source trigger it.
-4. Wait for the workflow to finish successfully.
-5. Open the completed run and download the **Dbweb-Android-stable-debug** artifact.
+```bash
+git clone https://github.com/chatpataprani/Claude-extension-.git
+cd Claude-extension-/android
+chmod +x ./gradlew
+./gradlew --no-daemon :app:assembleStableDebug
+```
 
-The APK is a debug build, not a Play Store-signed production release. A successful build confirms compilation and signature verification; test the app on your target Android device before distributing it.
+APK output: `app/build/outputs/apk/stable/debug/app-stable-debug.apk`.
 
-### Local build requirements
+## Project structure
+```text
+.
+├── android/                 # Android application source
+│   ├── app/                 # Main application module
+│   ├── gradle/              # Gradle wrapper
+│   └── README.md            # Android build notes
+└── .github/workflows/
+    └── dbweb-android.yml
+```
 
-- JDK 21
-- Android SDK with API 37 and Build Tools 37.0.0
-- Gradle wrapper included in the android directory
+## Contributing
+Fork the repository, create a branch, test your changes, and open a pull request. Report bugs through [GitHub Issues](https://github.com/chatpataprani/Claude-extension-/issues).
 
-From the repository root:
+## License
+Applicable GPL-3.0 licensing and third-party notices are retained. See [LICENSE](LICENSE) and the notices included with the source. Third-party plugins and repositories may have separate licences.
 
-    cd android
-    chmod +x ./gradlew
-    ./gradlew --no-daemon :app:assembleStableDebug
-
-The APK output is:
-
-    android/app/build/outputs/apk/stable/debug/app-stable-debug.apk
-
-## Project links
-
-- Website: https://webdd.freeddns.org
-- Android source: android/
-- Build workflow: .github/workflows/dbweb-android.yml
-
-## Licensing and third-party components
-
-This project retains applicable upstream notices and GPL-3.0 licensing for components distributed under that licence. See LICENSE and the licence notices included with the source. Third-party extensions and repositories may have their own licences and terms.
+---
+<div align="center">**Dbweb — Made for a better media experience.**</div>
