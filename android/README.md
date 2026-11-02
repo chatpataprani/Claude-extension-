@@ -1,31 +1,51 @@
 # Dbweb for Android
 
-Dbweb is an Android media-player application built on the CloudStream-compatible extension runtime.
+Dbweb is a media and streaming application for Android phones, tablets, and Android TV.
 
-## What is included
+## Features
 
-- Dbweb app name and application ID.
-- Dbweb launcher artwork and a clean dark launcher background.
+- Dbweb app name, application ID, launcher artwork, and branding.
+- Media discovery and playback through supported providers.
+- Extension repository support with manual repository addition.
+- Plugin browsing, installation, enabling, disabling, updating, and removal.
+- Installed repository management and plugin search.
+- Subtitles, playback controls, watch progress, and download capabilities provided by supported providers and the installed runtime.
 - Phone and Android TV layouts.
-- Built-in media playback, downloads, subtitles, watch tracking, and extension support inherited from the upstream-compatible runtime.
-- A Dbweb website shortcut in Settings.
-- A Dbweb website action in the Extensions empty state.
-- Existing installed-extension management and update mechanisms.
+- Dbweb website shortcuts in Settings and the Extensions screen.
 
-## Extensions
+## Add extensions and plugins
 
-The application keeps the compatible extension engine. The Extensions screen can manage repositories and installed extensions already configured on the device. The empty state links to the official Dbweb website.
+1. Open **Settings → Extensions**.
+2. Tap **Add Repository**.
+3. Enter the repository URL and an optional display name.
+4. Wait for the repository and its plugin list to load.
+5. Select a plugin and follow the installation prompt.
+6. Return to the Extensions or Plugins screen to manage installed plugins.
 
-A native, curated Dbweb catalogue is not enabled yet because a public catalogue manifest/API has not been configured. The website shortcut must not be mistaken for automatic in-app catalogue installation. Do not install repositories or extensions you do not trust.
+Manual repository addition is supported and remains visible in the app. Add only repositories and plugins you trust. Third-party content, provider availability, playback, subtitles, authentication, and downloads depend on those providers and plugins.
+
+A curated first-party Dbweb catalogue is not currently configured because no public catalogue manifest/API has been supplied. The website shortcut links to the Dbweb website and is not an automatic in-app catalogue.
 
 ## Build
 
-Use the GitHub Actions workflow **Build Dbweb Android APK**. It builds the stable debug variant and uploads the verified APK as a workflow artifact.
+The GitHub Actions workflow **Build Dbweb Android APK** builds the stable debug APK, verifies its signature, calculates a SHA-256 checksum, and uploads it as the **Dbweb-Android-stable-debug** artifact.
 
-## Upstream and licensing
+To build locally, use JDK 21 and Android SDK API 37 with Build Tools 37.0.0:
 
-This project is a rebranded fork. The upstream CloudStream-compatible source, notices, and GPL-3.0 licence are retained. See [LICENSE](LICENSE) and the upstream project at https://github.com/recloudstream/cloudstream for the original project and its history.
+    cd android
+    chmod +x ./gradlew
+    ./gradlew --no-daemon :app:assembleStableDebug
 
-## Project website
+Output:
+
+    app/build/outputs/apk/stable/debug/app-stable-debug.apk
+
+The generated artifact is a debug build, not a production Play Store release. Test it on your target device before distribution.
+
+## Licensing
+
+Applicable upstream notices and GPL-3.0 licensing are retained. See LICENSE and the licence notices in the source. Third-party plugins and repositories may have separate licences and terms.
+
+## Website
 
 https://webdd.freeddns.org
