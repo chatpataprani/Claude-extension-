@@ -83,6 +83,15 @@
             android:text="@string/blank_repo_message"
             android:textSize="16sp" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/dbweb_catalogue_button"
+            style="@style/WhiteButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Visit Dbweb"
+            android:contentDescription="Open the official Dbweb website" />
+
         <!--        <com.google.android.material.button.MaterialButton-->
         <!--            android:id="@+id/list_repositories"-->
         <!--            style="@style/WhiteButton"-->
