@@ -7,7 +7,7 @@
 - Dark neutral launcher background; monochrome launcher uses Dbweb artwork.
 - Dbweb website shortcut in Settings.
 - Dbweb website action in the Extensions empty state.
-- Manual add-repository buttons are hidden in the normal Extensions UI.
+- Manual repository addition remains available on phones and Android TV; users can add extension repositories and install/manage their plugins.
 - Existing installed-extension management and compatible runtime are retained.
 - Default English app strings use Dbweb branding.
 - Upstream GPL-3.0 licence and required notices are retained.
