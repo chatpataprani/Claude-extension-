@@ -5,7 +5,7 @@ on:
   push:
     branches: [main]
     paths:
-      - "source/Dbweb-Android-Source-Download.zip"
+      - "android/**"
       - ".github/workflows/dbweb-android.yml"
 
 permissions:
@@ -26,14 +26,11 @@ jobs:
 
       - name: Verify and extract source archive
         run: |
-          unzip -tq source/Dbweb-Android-Source-Download.zip
-          mkdir -p build-source
-          unzip -q source/Dbweb-Android-Source-Download.zip -d build-source
-          test -f build-source/cloudsrc/gradlew
-          test -f build-source/cloudsrc/app/build.gradle.kts
+          test -f android/gradlew
+          test -f android/app/build.gradle.kts
 
       - name: Audit Dbweb branding and extension management
-        working-directory: build-source/cloudsrc
+        working-directory: android
         run: |
           echo "=== WEBSITE REFERENCES ==="
           grep -RIn --include='*.kt' --include='*.xml' --include='*.java' --include='*.html' 'webdd\\.freeddns\\.org' app/src/main || true
@@ -86,7 +83,7 @@ jobs:
 
       - name: Verify APK and calculate checksum
         run: |
-          APK="build-source/cloudsrc/app/build/outputs/apk/stable/debug/app-stable-debug.apk"
+          APK="android/app/build/outputs/apk/stable/debug/app-stable-debug.apk"
           test -s "$APK"
           sha256sum "$APK"
           "$ANDROID_HOME/build-tools/37.0.0/apksigner" verify --verbose "$APK"
