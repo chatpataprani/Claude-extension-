@@ -74,7 +74,7 @@ jobs:
 
       - name: Verify APK and calculate checksum
         run: |
-          APK="app/build/outputs/apk/stable/debug/app-stable-debug.apk"
+          APK="android/app/build/outputs/apk/stable/debug/app-stable-debug.apk"
           test -s "$APK"
           sha256sum "$APK"
           "$ANDROID_HOME/build-tools/37.0.0/apksigner" verify --verbose "$APK"
