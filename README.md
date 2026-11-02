@@ -1,36 +1,67 @@
-# CloudStream Web
+# Dbweb for Android
 
-A browser client for the CNCVerse CloudStream extension collection, with a bridge-powered catalog and stream interface.
+Dbweb is a media and streaming application for Android phones, tablets, and Android TV. This repository contains the Android application source and automated build workflow.
 
-## How extension execution works
+## Features
 
-CloudStream `.cs3` files contain Android/Kotlin plugin code. A browser cannot execute those packages. This project therefore uses a separate, CloudStream-compatible CNCVerse Bridge server as the execution runtime and talks to its Stremio-compatible HTTP API.
+- Dbweb application name, package ID, launcher artwork, and visual branding.
+- Media discovery and playback through supported providers.
+- Extension and plugin support using compatible repository packages.
+- Manual repository addition: open **Extensions**, choose **Add Repository**, and enter a trusted repository URL.
+- Browse plugins from added repositories, then install, enable, disable, update, or remove them.
+- Manage installed repositories and plugins.
+- Search the available plugin list.
+- Subtitles, playback controls, watch progress, and download features provided by supported providers and the installed runtime.
+- Phone and Android TV layouts.
+- Dbweb website shortcuts in Settings and the Extensions screen.
 
-- The Discover page reads the pinned CNCVerse repository manifest and lists its extensions.
-- Package storage remains available for inspection, but downloading a `.cs3` file does not execute it.
-- The **Runtime** page reads catalogs, metadata and stream results from the connected bridge server.
-- The Next.js API route proxies only the bridge manifest, catalog, metadata and stream endpoints. The bridge URL stays server-side.
+## Installing extensions and plugins
 
-## Connect the runtime
+1. Open **Settings → Extensions**.
+2. Tap **Add Repository**.
+3. Enter the repository URL. Add a display name if requested.
+4. After the repository loads, open its plugin list.
+5. Select a plugin and follow the install prompt.
+6. Manage installed plugins from the Extensions and Plugins screens.
 
-1. Install the official [CNCVerse Bridge Android app](https://github.com/NivinCNC/CNCVerse-Bridge/releases/latest) or a supported Linux release. Start its server and install/enable the CNCVerse extension repository inside Bridge.
-2. The easiest remote connection is an HTTPS Cloudflare Tunnel. Bridge documents this under **Stremio Mode**; it requires a domain managed by Cloudflare. Keep the Bridge server and tunnel running while using the website.
-3. In Vercel → Project → Settings → Environment Variables, set `CNCVERSE_BRIDGE_URL` to the HTTPS addon base URL. Remove the trailing `/manifest.json`; do not include that path.
-4. Redeploy, open **Runtime**, and confirm that the bridge manifest loads. The Runtime page can then browse catalogs, search catalogs that declare a `search` extra, fetch metadata, and request streams.
+Only add repositories and plugins from sources you trust. Third-party repositories and providers are not operated or verified by Dbweb. Availability, playback quality, subtitles, authentication, and downloads depend on each provider and plugin.
 
-If the runtime is not connected, the Runtime page explains the missing configuration. No fake local execution is attempted.
+Manual repository controls are intentionally available. The Dbweb website shortcut is an additional link; it does not replace manual repository support. A curated first-party catalogue is not included until a public Dbweb catalogue manifest/API is configured.
 
-## Limitations
+## Build the APK
 
-- A bridge server must be running and reachable over HTTPS.
-- The bridge server must have the CNCVerse repository and extensions installed/enabled.
-- Playback depends on stream format and browser support. Some providers require authentication, cookies, region access, or a native player.
-- Vercel is used only for the web frontend and a small API proxy. It is not used to execute Android extension code.
+The GitHub Actions workflow **Build Dbweb Android APK** builds the stable debug variant, verifies the generated APK signature, calculates its SHA-256 checksum, and uploads the APK as an artifact.
 
-## Development
+1. Open the repository's **Actions** tab.
+2. Select **Build Dbweb Android APK**.
+3. Choose **Run workflow** to start a fresh build, or let a push to the Android source trigger it.
+4. Wait for the workflow to finish successfully.
+5. Open the completed run and download the **Dbweb-Android-stable-debug** artifact.
 
-- Node.js 20+
-- `npm install`
-- `npm run dev`
+The APK is a debug build, not a Play Store-signed production release. A successful build confirms compilation and signature verification; test the app on your target Android device before distributing it.
 
-Set `CNCVERSE_BRIDGE_URL` in `.env.local` when testing the runtime locally.
+### Local build requirements
+
+- JDK 21
+- Android SDK with API 37 and Build Tools 37.0.0
+- Gradle wrapper included in the android directory
+
+From the repository root:
+
+    cd android
+    chmod +x ./gradlew
+    ./gradlew --no-daemon :app:assembleStableDebug
+
+The APK output is:
+
+    android/app/build/outputs/apk/stable/debug/app-stable-debug.apk
+
+## Project links
+
+- Website: https://webdd.freeddns.org
+- Android source: android/
+- Build workflow: .github/workflows/dbweb-android.yml
+
+## Licensing and third-party components
+
+This project retains applicable upstream notices and GPL-3.0 licensing for components distributed under that licence. See LICENSE and the licence notices included with the source. Third-party extensions and repositories may have their own licences and terms.
