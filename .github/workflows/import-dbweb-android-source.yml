@@ -7,6 +7,7 @@ on:
     paths:
       - ".github/workflows/import-dbweb-android-source.yml"
       - "source/Dbweb-Android-Source-Download.zip"
+      - ".github/scripts/patch_dbweb_android.py"
 
 permissions:
   contents: write
