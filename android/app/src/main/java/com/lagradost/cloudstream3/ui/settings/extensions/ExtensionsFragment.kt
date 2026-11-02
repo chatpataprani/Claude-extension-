@@ -180,6 +180,17 @@ class ExtensionsFragment : BaseFragment<FragmentExtensionsBinding>(
             }
         }
 
+        binding.dbwebCatalogueButton.setOnClickListener {
+            runCatching {
+                startActivity(
+                    android.content.Intent(
+                        android.content.Intent.ACTION_VIEW,
+                        android.net.Uri.parse("https://webdd.freeddns.org")
+                    )
+                )
+            }
+        }
+
         binding.pluginStorageAppbar.setOnClickListener {
             findNavController().navigate(
                 R.id.navigation_settings_extensions_to_navigation_settings_plugins,
