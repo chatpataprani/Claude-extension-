@@ -39,7 +39,7 @@ if 'binding.dbwebWebsite.setOnClickListener' not in code:
 
 fragment = root / 'app/src/main/java/com/lagradost/cloudstream3/ui/settings/extensions/ExtensionsFragment.kt'
 code = fragment.read_text()
-code, count = re.subn(r'addRepoButton\\.isGone = isTv\\s+addRepoButtonImageviewHolder\\.isVisible = isTv', 'addRepoButton.isGone = true\\n            addRepoButtonImageviewHolder.isGone = true', code)
+code, count = re.subn(r'addRepoButton\.isGone = isTv\s+addRepoButtonImageviewHolder\.isVisible = isTv', 'addRepoButton.isGone = true\\n            addRepoButtonImageviewHolder.isGone = true', code)
 if count != 1: raise SystemExit(f'Expected one manual repository control block, found {count}')
 fragment.write_text(code)
 
