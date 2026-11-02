@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 
 root = Path('android')
 layout = root / 'app/src/main/res/layout/main_settings.xml'
@@ -37,7 +38,9 @@ if 'binding.dbwebWebsite.setOnClickListener' not in code:
     settings.write_text(code.replace(anchor, wiring + anchor, 1))
 
 fragment = root / 'app/src/main/java/com/lagradost/cloudstream3/ui/settings/extensions/ExtensionsFragment.kt'
-code = fragment.read_text().replace('addRepoButton.isGone = isTv\\n            addRepoButtonImageviewHolder.isVisible = isTv', 'addRepoButton.isGone = true\\n            addRepoButtonImageviewHolder.isGone = true')
+code = fragment.read_text()
+code, count = re.subn(r'addRepoButton\\.isGone = isTv\\s+addRepoButtonImageviewHolder\\.isVisible = isTv', 'addRepoButton.isGone = true\\n            addRepoButtonImageviewHolder.isGone = true', code)
+if count != 1: raise SystemExit(f'Expected one manual repository control block, found {count}')
 fragment.write_text(code)
 
 (root / 'DBWEB_IMPLEMENTATION_STATUS.md').write_text('''# Dbweb Android implementation status
@@ -48,3 +51,7 @@ Implemented: application ID and app label are Dbweb; adaptive launcher artwork i
 
 Limitations: the website link opens https://webdd.freeddns.org. No public extension catalogue API or manifest has been supplied, so native catalogue browsing, installation, and updates are not implemented. Required upstream identifiers and licence notices remain. APK build and runtime/device testing are still required.
 ''')
+# Replace user-facing upstream branding in the default English resource strings only.
+strings = root / 'app/src/main/res/values/strings.xml'
+text = strings.read_text().replace('CloudStream', 'Dbweb')
+strings.write_text(text)
