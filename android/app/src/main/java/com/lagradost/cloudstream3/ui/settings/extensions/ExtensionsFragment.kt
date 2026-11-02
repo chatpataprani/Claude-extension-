@@ -342,8 +342,8 @@ class ExtensionsFragment : BaseFragment<FragmentExtensionsBinding>(
 
         val isTv = isLayout(TV)
         binding.apply {
-            addRepoButton.isGone = true
-            addRepoButtonImageviewHolder.isGone = true
+            addRepoButton.isGone = isTv
+            addRepoButtonImageviewHolder.isVisible = isTv
 
             // Band-aid for Fire TV
             pluginStorageAppbar.isFocusableInTouchMode = isTv
