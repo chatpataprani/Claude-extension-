@@ -3,7 +3,7 @@ from pathlib import Path
 root = Path('android')
 layout = root / 'app/src/main/res/layout/main_settings.xml'
 xml = layout.read_text()
-marker = '            <LinearLayout\\n                android:id="@+id/app_version_info"'
+marker = '                android:id="@+id/app_version_info"'
 if 'android:id="@+id/dbweb_website"' not in xml:
     insert = '''            <TextView
                 android:id="@+id/dbweb_website"
@@ -18,7 +18,9 @@ if 'android:id="@+id/dbweb_website"' not in xml:
 
 '''
     if marker not in xml: raise SystemExit('Settings footer insertion point not found')
-    layout.write_text(xml.replace(marker, insert + marker, 1))
+    pos = xml.rfind('            <LinearLayout', 0, xml.index(marker))
+    if pos < 0: raise SystemExit('Settings footer container not found')
+    layout.write_text(xml[:pos] + insert + xml[pos:])
 
 settings = root / 'app/src/main/java/com/lagradost/cloudstream3/ui/settings/SettingsFragment.kt'
 code = settings.read_text()
