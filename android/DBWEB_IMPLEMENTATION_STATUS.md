@@ -1,22 +1,28 @@
-# Dbweb Android — implementation status
+# Dbweb Android implementation status
 
-## Implemented in the repository
-- Application ID: `com.chatpataprani.dbweb`.
-- User-facing app name: Dbweb (including the debug build label).
-- Dbweb launcher foreground artwork is referenced by the adaptive launcher resources.
-- Dark neutral launcher background; monochrome launcher uses Dbweb artwork.
+## Implemented
+
+- Application ID: com.chatpataprani.dbweb.
+- Dbweb app name and debug build label.
+- Dbweb launcher artwork wired to adaptive launcher resources.
+- Dark neutral launcher background and monochrome launcher artwork.
 - Dbweb website shortcut in Settings.
-- Dbweb website action in the Extensions empty state.
-- Manual repository addition remains available on phones and Android TV; users can add extension repositories and install/manage their plugins.
-- Existing installed-extension management and compatible runtime are retained.
+- Dbweb website action in the Extensions screen.
+- Manual repository addition on phones and Android TV.
+- Repository parsing and installation flow.
+- Existing plugin discovery, installation, enable/disable, update, and removal screens.
+- Plugin search and installed-plugin management.
+- Existing media runtime and compatible repository package support.
 - Default English app strings use Dbweb branding.
-- Upstream GPL-3.0 licence and required notices are retained.
+- Applicable GPL-3.0 licence and required notices are retained.
 
-## Not represented as complete
-- The website action opens `https://webdd.freeddns.org`; it is not a native extension catalogue.
-- No public Dbweb catalogue manifest/API has been configured. Native catalogue browsing, one-tap installation, and catalogue-driven updates therefore remain unavailable.
-- CloudStream-compatible internal package names, namespaces, and protocol identifiers remain where required for extension compatibility and upstream licence compliance.
-- A successful CI build verifies compilation and APK signature integrity, not full runtime behaviour on every phone or Android TV device.
+## Current limitations
 
-## Release verification
-The GitHub Actions workflow **Build Dbweb Android APK** builds `:app:assembleStableDebug`, checks the output APK, verifies its signature, calculates its SHA-256 checksum, and uploads it as an artifact. A release should only be called verified when that workflow completes successfully.
+- The website shortcut opens the Dbweb website; it is not a native catalogue.
+- No public Dbweb catalogue manifest/API has been configured. Native first-party catalogue browsing and one-tap installation from a Dbweb catalogue are therefore not available.
+- Third-party repository and provider behaviour depends on each repository, plugin, and service.
+- CI compilation and APK signature verification do not replace testing on physical Android phones and Android TV devices.
+
+## Build verification
+
+The **Build Dbweb Android APK** workflow runs :app:assembleStableDebug, checks that the APK exists, verifies its signature, calculates its SHA-256 checksum, and uploads the APK artifact. A build is verified only when the workflow completes successfully.
